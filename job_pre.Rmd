@@ -29,6 +29,14 @@ tidy_list<- list_org%>% unnest_tokens(word,description) %>%
   anti_join(stop_words) #remove stop words
 ```
 
+# Word Cloud
+```{r, echo=FALSE}
+library(wordcloud2) 
+freq<- tidy_list %>% 
+  mutate(word = str_extract(word, "[a-z']+"))   %>% count(word)
+wordcloud2(data=freq, size=1.6, color='random-dark', shape="star")
+```
+
 # Plot the most 10 common words in description 
 ```{r}
 # plot the most 10 common words in description
@@ -41,7 +49,37 @@ tidy_list %>%
      geom_col() +
      labs(y=NULL)
 ```
-## List the states with the most job positions of data scientists
+## Common bigrams in job descriptions, showing those that occurred more than 20 times and where neither word was a stop word
+```{r, echo= FALSE}
+library(ggraph)  #devtools::install_github('thomasp85/ggraph')
+library(igraph)
+count_bigrams <- function(dataset) {
+  dataset %>%
+    unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
+    separate(bigram, c("word1", "word2"), sep = " ") %>%
+    filter(!word1 %in% stop_words$word,
+           !word2 %in% stop_words$word) %>%
+    count(word1, word2, sort = TRUE)
+}
+
+visualize_bigrams <- function(bigrams) {
+  set.seed(2016)
+
+  bigrams %>%
+    ggraph (layout = "fr") +
+    geom_edge_link() +
+    geom_node_point(color = "lightpink", size = 5) +
+    geom_node_text(aes(label = name), vjust = 1, hjust = 1)
+}
+#take it to the text-list_org
+list_org %>%
+  count_bigrams()%>%
+  filter(n > 3 & !is.na(word1) & !is.na(word2)) %>%
+  graph_from_data_frame() %>%
+  visualize_bigrams()
+```
+
+## List the top 10 states with the most job positions of data scientists
 ```{r, echo=FALSE}
 list_org %>% 
   separate(location, into=c("area","state"),sep=",") %>%
@@ -56,7 +94,7 @@ list_org %>%
 ```
 
 -----
-## List the states with the most job positions of data scientists
+## List the top 10 companies with the most job positions of data scientists
 ```{r, echo=FALSE}
 list_org %>%
   filter(!is.na(company)) %>%
@@ -65,7 +103,8 @@ list_org %>%
   head(10) %>%
   ggplot(aes(company,n)) +
   geom_col() +
-  labs(y=NULL)
+  labs(y=NULL) + ylab("Position") +xlab("Company")+
+  theme(axis.text.x = element_text(size = 12, color = "darkblue", vjust = 0.5, hjust = 0.5, angle = 45))
 ```
 
 # Comparing the word frequencies of Bboston, Cambridge and Framingham
@@ -100,40 +139,5 @@ ggplot(location_compare, aes(x = proportion, y = `Boston`,
   labs(y = "Boston", x = NULL)
 ```
 
-# Word Cloud
-```{r, echo=FALSE}
-library(wordcloud2) 
-freq<- tidy_list %>% 
-  mutate(word = str_extract(word, "[a-z']+"))   %>% count(word)
-wordcloud2(data=freq, size=1.6, color='random-dark', shape="star")
-```
 
-## function bigram plot 
-```{r, echo= FALSE}
-library(ggraph)  #devtools::install_github('thomasp85/ggraph')
-library(igraph)
-count_bigrams <- function(dataset) {
-  dataset %>%
-    unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
-    separate(bigram, c("word1", "word2"), sep = " ") %>%
-    filter(!word1 %in% stop_words$word,
-           !word2 %in% stop_words$word) %>%
-    count(word1, word2, sort = TRUE)
-}
 
-visualize_bigrams <- function(bigrams) {
-  set.seed(2016)
-
-  bigrams %>%
-    ggraph (layout = "fr") +
-    geom_edge_link() +
-    geom_node_point(color = "lightpink", size = 5) +
-    geom_node_text(aes(label = name), vjust = 1, hjust = 1)
-}
-#take it to the text-list_org
-list_org %>%
-  count_bigrams()%>%
-  filter(n > 10) %>%
-  graph_from_data_frame() %>%
-  visualize_bigrams()
-```
