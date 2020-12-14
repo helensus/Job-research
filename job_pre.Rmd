@@ -15,11 +15,125 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(magrittr)
 library(stringr)
+library(tidytext)
+library(ggplot2)
 ```
 
 
 ```{r , echo= FALSE}
 list_org <- read.csv("listings2.csv")
+
+## tidy text with unnest_tokens(), take each word into a token
+data(stop_words)
+tidy_list<- list_org%>% unnest_tokens(word,description) %>%
+  anti_join(stop_words) #remove stop words
 ```
 
+# Plot the most 10 common words in description 
+```{r}
+# plot the most 10 common words in description
+tidy_list %>%
+  count(word, sort=TRUE) %>% 
+   mutate(word= reorder(word,n)) %>%
+    filter(!is.na(word)) %>%
+    head(10) %>%
+     ggplot(aes(n, word)) +
+     geom_col() +
+     labs(y=NULL)
+```
+## List the states with the most job positions of data scientists
+```{r, echo=FALSE}
+list_org %>% 
+  separate(location, into=c("area","state"),sep=",") %>%
+  filter(!is.na(state)) %>%
+  count(state, sort=TRUE) %>% 
+  mutate(state= reorder(state,n)) %>%
+  head(10) %>%
+  ggplot(aes(state,n)) +
+  geom_col() +
+  labs(y=NULL)
 
+```
+
+-----
+## List the states with the most job positions of data scientists
+```{r, echo=FALSE}
+list_org %>%
+  filter(!is.na(company)) %>%
+  count(company, sort=TRUE) %>% 
+  mutate(company= reorder(company,n)) %>%
+  head(10) %>%
+  ggplot(aes(company,n)) +
+  geom_col() +
+  labs(y=NULL)
+```
+
+# Comparing the word frequencies of Bboston, Cambridge and Framingham
+```{r, echo=FALSE}
+#plot of word frequencies: boston compare with Cambridge and Framingham
+#take out the lines needed
+location_compare <-tidy_list  %>%
+  separate(location, into=c("area","state"),sep=",") %>%
+  filter(!is.na(area)) %>%
+  mutate(word = str_extract(word, "[a-z']+")) %>%
+  filter(area =="Boston"|area =="Framingham"|area=="Cambridge") %>%
+  count(area, word) %>%
+  group_by(area)%>%
+  mutate(proportion= n/ sum(n)) %>% select(-n)%>%
+  spread(area, proportion) %>%
+  gather(area,proportion, `Framingham`:`Cambridge`) 
+
+
+library(scales)
+#plot
+ggplot(location_compare, aes(x = proportion, y = `Boston`, 
+                      color = abs(`Boston` - proportion))) +
+  geom_abline(color = "gray40", lty = 2) +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.3, height = 0.3) +
+  geom_text(aes(label = word), check_overlap = TRUE, vjust = 1.5) +
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
+  scale_color_gradient(limits = c(0, 0.001), 
+                       low = "darkslategray4", high = "gray75") +
+  facet_wrap(~area, ncol = 2) +
+  theme(legend.position="none") +
+  labs(y = "Boston", x = NULL)
+```
+
+# Word Cloud
+```{r, echo=FALSE}
+library(wordcloud2) 
+freq<- tidy_list %>% 
+  mutate(word = str_extract(word, "[a-z']+"))   %>% count(word)
+wordcloud2(data=freq, size=1.6, color='random-dark', shape="star")
+```
+
+## function bigram plot 
+```{r, echo= FALSE}
+library(ggraph)  #devtools::install_github('thomasp85/ggraph')
+library(igraph)
+count_bigrams <- function(dataset) {
+  dataset %>%
+    unnest_tokens(bigram, description, token = "ngrams", n = 2) %>%
+    separate(bigram, c("word1", "word2"), sep = " ") %>%
+    filter(!word1 %in% stop_words$word,
+           !word2 %in% stop_words$word) %>%
+    count(word1, word2, sort = TRUE)
+}
+
+visualize_bigrams <- function(bigrams) {
+  set.seed(2016)
+
+  bigrams %>%
+    ggraph (layout = "fr") +
+    geom_edge_link() +
+    geom_node_point(color = "lightpink", size = 5) +
+    geom_node_text(aes(label = name), vjust = 1, hjust = 1)
+}
+#take it to the text-list_org
+list_org %>%
+  count_bigrams()%>%
+  filter(n > 10) %>%
+  graph_from_data_frame() %>%
+  visualize_bigrams()
+```
