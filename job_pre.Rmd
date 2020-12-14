@@ -1,0 +1,25 @@
+---
+title: "Job research about data scientists"
+author: "Helen"
+date: "12/13/2020"
+  revealjs::revealjs_presentation:
+    theme: solarized
+    highlight: pygments
+    css: leaflet-reveal.css
+    center: false
+    transition: slide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(magrittr)
+library(stringr)
+```
+
+
+```{r , echo= FALSE}
+list_org <- read.csv("listings2.csv")
+```
+
+
