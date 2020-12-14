@@ -11,6 +11,9 @@ library(tidyverse)
 list_org <- read.csv("listings2.csv")
 listings <-list_org %>% 
     separate(location, into=c("area","state"),sep=",")# %>% filter(state == "MA")
+data(stop_words)
+tidy_list<- list_org%>% unnest_tokens(word,description) %>%
+  anti_join(stop_words) #remove stop words
 
 # Define UI for application that draws a histogram
 ui <-dashboardPage(
@@ -147,11 +150,13 @@ server <- function(input, output) {
     
     # plot the most n common words in description
     output$plot5 <- renderPlot({
-        tidy_list %>%
+        num<-input$max2
+        list_org %>% unnest_tokens(word,description) %>%
+          anti_join(stop_words) %>%
             count(word, sort=TRUE) %>% 
             mutate(word= reorder(word,n)) %>%
             filter(!is.na(word)) %>%
-            head(input$max2) %>%
+            head(num) %>%
             ggplot(aes(n, word)) +
             geom_col() +
             labs(y=NULL)
