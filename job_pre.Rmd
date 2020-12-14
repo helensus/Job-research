@@ -32,7 +32,8 @@ tidy_list<- list_org%>% unnest_tokens(word,description) %>%
 # Word Cloud
 ```{r, echo=FALSE}
 library(wordcloud2) 
-freq<- tidy_list %>% 
+freq<- list_org %>% unnest_tokens(word,description) %>%
+  anti_join(stop_words)  %>%
   mutate(word = str_extract(word, "[a-z']+"))   %>% count(word)
 wordcloud2(data=freq, size=1.6, color='random-dark', shape="star")
 ```
