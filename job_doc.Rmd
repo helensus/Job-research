@@ -2,7 +2,9 @@
 title: "Job research about data scientists"
 author: "Haoran su"
 date: "12/14/2020"
-output: html_document
+output: 
+  html_document: 
+    theme: yeti
 ---
 
 
@@ -47,15 +49,15 @@ kable(list_org[1:5,2:5])
 
 
 # Location Distribution
-## List the top 10 states with the most job positions of data scientists
-<font size ="4">The plot shows that MA has the most positions of data scientists, which is not a display of the whole job listing.The reason of having Masachussette ranking 1st might for the location of crawling is at Boston, MA. So my analysis will turn to analysis the job opportunities near my current coordinate.</font>
-```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.height=2.5,fig.width=4}
+## List the areas with the most job positions of data scientists
+The plot shows that MA has the most positions of data scientists, which is not a display of the whole job listing.The reason of having Masachussette ranking 1st might for the location of crawling is at Boston, MA. So my analysis will turn to analysis the job opportunities near my current coordinate.
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.height=2.5}
 #area
 cityjob<-list_org %>% 
   separate(location, into=c("area","state"),sep=",") %>%
   filter(!is.na(state)) %>%
   group_by(state,area)%>%summarise(count = n())%>%arrange(desc(count))
-kable(cityjob[2:6,])
+kable(cityjob[1:6,])
 ## List the top 10 states with the most job positions of data scientists
 list_org %>% 
   separate(location, into=c("area","state"),sep=",") %>%
@@ -68,12 +70,14 @@ list_org %>%
   labs(y=NULL)
 ```
 
-## List the top 10 companies with the most job positions of data scientists
+Even the searching result from the website take my location into account, from the list, we can see that the areas with most positions are Boston, Cambridge, New York, San Francisco. For areas out of MA, I think the reason they appear in the list is that they have really many job opportunities. If I consider the job in other areas, I could look for New York and San Francisco.
+
+## List the companies with the most job positions of data scientists
 ```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.height=4}
 companyjob<-list_org %>%
   filter(!is.na(company)) %>%
   group_by(company)%>%summarize(count = n())%>%arrange(desc(count))
-kable(companyjob[2:6,])
+kable(companyjob[1:6,])
 
 list_org %>%
   filter(!is.na(company)) %>%
@@ -85,7 +89,7 @@ list_org %>%
   labs(y=NULL) + ylab("Position") +xlab("Company")+
   theme(axis.text.x = element_text(size = 12, color = "darkblue", vjust = 0.5, hjust = 0.5, angle = 45))
 ```
-
+Within the nearby areas, CVS Health has 5 jobs related, ranking at 1st. Then Biogen, Harvard University, Microsoft has 3 job positions for data scientists or statisticians. 3 compaies out of the top 4 companies having most number of positions are related to biology, medical and health. So I get a conclusion that the companies in the biology field need data scientists the most.
 
 # Description
 Looking at the description of jobs, I want to know "what skills do the positions require".
@@ -98,11 +102,6 @@ freq<- list_org %>% unnest_tokens(word,description) %>%
   mutate(word = str_extract(word, "[a-z']+"))   %>% count(word)
 wordcloud2(data=freq, size=1.6, color='random-dark', shape="star")
 ```
-From the word cloud, I found that the words appear most frequently is "business, science, skills, development". It surprised me that the word "business" appear larger than "science". My interpretation is that the companies focus more on business value, talents' ability to realize talent. 
-
-And I didn't expect so many references to words " development" in the job descriptions. It might show that the employers are looking for long-term contribution of employees, who are expected to have the ability to learn. I think I need to prepare examples that show my self-learning ability.
-
-During the completion of this project, I expanded to discover many r's abilities, I learned from the examples in the book, the discussions that came up with google searching, retrieving how the functions I wanted to implement and the problems I had to solve.
 
 ## The most 10 common words in description 
 ```{r,echo=FALSE, message=FALSE, warning=FALSE}
@@ -116,6 +115,15 @@ tidy_list %>%
      geom_col() +
      labs(y=NULL)
 ```
+
+Besides "data", word "experience" appear most. It might because that the job descriptions have the duty to mention whether they need people with or without experience, what kind of experience is preferred.
+
+From the word cloud, I found that the words appear most frequently is "business, science, skills, development". It surprised me that the word "business" appear larger than "science". My interpretation is that the companies focus more on business value, talents' ability to realize talent. 
+
+And I didn't expect so many references to words " development" in the job descriptions. It might show that the employers are looking for long-term contribution of employees, who are expected to have the ability to learn. I think I need to prepare examples that show my self-learning ability.
+
+The high frequency of the appearance of word "team" points to the requirement of teamwork in this job.
+
 
 # Words appear together
 Some words may come together. The following plot shows common bigrams of words, showing those that occurred more than 3 times and where neither word was a stop word
@@ -147,6 +155,10 @@ list_org %>%
   graph_from_data_frame() %>%
   visualize_bigrams()
 ```
+
+It is quite interesting to look at this plot.
+Most of the lines are between synonyms and phrases.
+The word "data" is centrally dispersed for the word "data"'s high frequency of appearance. I want to highlight the lines between "visualization" and "data", "engineering" and "data", "business" and "data". I am not sure about the real meanings of such connection. The companies may want the employees have the ability to visualize data, they may doing works about business or engineering. 
 
 # The descriptions of jobs in two different areas
 As my location is at Boston, I want to look at the job descriptions of the different areas nearby. The plot shows the comparison the word frequencies of Boston, Cambridge and Framingham.
@@ -181,7 +193,16 @@ ggplot(location_compare, aes(x = proportion, y = `Boston`,
   labs(y = "Boston", x = NULL)
 ```
 
-# Conclusion
+Words that are close to the line in these plots have similar frequencies in both sets of texts. 
+From the plot, notice that the words in the Boston-Cambridge panel are closer to the zero-slope line than in the Boston_Framingham panel. Also notice that the words extend to lower frequencies in the Boston-Cambridge panel. These characteristics indicate that job descriptions in areas of Boston and Cambridge use more similar words than Boston and Framingham. It may indicate that the jobs requirement is more similar in Boston and the Cambridge.
 
-We found some advantages and disadvantages of looking for a data science and statistical job through this project. The advantage is that we all have strong teamwork and communication skills. This is due to the fact that we have been working as a team during the graduate study at BU MSSP. Another advantage is that our expertise is well matched. Including the text mining I used this time, the modeling skills I learned in class 678, and the machine learning I will learn in class 679 next semester. Our disadvantage is that we don't have enough work experience. Most of our jobs require two years of working experience.
+# Discussion
+
+
+During the completion of this project, I expanded to discover many R functions, I learned from the examples in the book, the discussions that came up with  searching, retrieving how the functions I wanted to implement and the problems I had to solve.
+
+The text mining in this project helps me find some information that the job data scientists might be related to the area biology research, teamwork and business sense is also required. It tells me the number of positions of the areas or companies from the search result. I could also make comparisons between the descriptions of jobs in two different areas or different companies.
+
+
+I intended to use code that could be used for other crawled data sets. For the time limit, I did not take any efforts in crawling data from other job websites, which could be done afterwards.
 
