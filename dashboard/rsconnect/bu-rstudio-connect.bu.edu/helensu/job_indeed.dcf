@@ -1,0 +1,12 @@
+name: job_indeed
+title: job_indeed
+username: helensu
+account: helensu
+server: bu-rstudio-connect.bu.edu
+hostUrl: https://bu-rstudio-connect.bu.edu/__api__
+appId: 52
+bundleId: 117
+url: https://bu-rstudio-connect.bu.edu/content/52/
+when: 1607987869.84557
+asMultiple: FALSE
+asStatic: FALSE
