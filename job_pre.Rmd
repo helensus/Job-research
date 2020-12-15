@@ -61,7 +61,7 @@ cityjob<-list_org %>%
   separate(location, into=c("area","state"),sep=",") %>%
   filter(!is.na(state)) %>%
   group_by(state,area)%>%summarise(count = n())%>%arrange(desc(count))
-kable(cityjob[2:6,])
+kable(cityjob[1:6,])
 ## List the top 10 states with the most job positions of data scientists
 list_org %>% 
   separate(location, into=c("area","state"),sep=",") %>%
