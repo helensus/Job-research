@@ -18,14 +18,14 @@ tidy_list<- list_org%>% unnest_tokens(word,description) %>%
 # Define UI for application that draws a histogram
 ui <-dashboardPage(
     skin="green",
-    dashboardHeader(title = "Job of Data Scientists"),
+    dashboardHeader(title = "Job Positions of Data Scientists"),
     dashboardSidebar(
         width = 150,
         sidebarMenu(
             menuItem("Dashboard", tabName = "tab1", icon = icon("dashboard")),
-            menuItem("Plot", tabName = "tab3", icon = icon("th")),
-            menuItem("Word Frequency", tabName = "tab2", icon = icon("th")),
-            menuItem("Biogram", tabName = "tab4", icon = icon("th"))
+            menuItem("Positions", tabName = "tab3", icon = icon("signal")),
+            menuItem("Word Frequency", tabName = "tab2", icon = icon("cloud")),
+            menuItem("Word connection", tabName = "tab4", icon = icon("th"))
         )
     ),
     dashboardBody(
