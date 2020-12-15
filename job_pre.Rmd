@@ -32,7 +32,7 @@ tidy_list<- list_org%>% unnest_tokens(word,description) %>%
 ```
 
 # Introduction
-This project is about utilizing text mining in R. Since we are going to find a job of data scientist or statistical job, it is important for us to know about what features the interviewers are looking for. Data is crawled from Indeed website that is for job listings.
+This project is about utilizing text mining in R. Since we are going to find a job of data scientist or statistical job, it is important for us to know about what features the interviewers are looking for. Data is crawled from Indeed website that is for job listings.(indeed link: https://www.indeed.com/)
 
 Here I mainly focus on the following 3 questions:
 
@@ -94,14 +94,16 @@ list_org %>%
 
 
 # Word frequency in Description
-<font size ="4">Looking at the description of jobs, I want to know "what skills do the positions require".</font>
+<font size ="5">Looking at the description of jobs, I want to know "what skills do the positions require".</font>
+
 ## Word Cloud
 ```{r,echo=FALSE, message=FALSE, warning=FALSE,fig.width=5}
 library(wordcloud)
 freq<- list_org %>% unnest_tokens(word,description) %>%
   anti_join(stop_words)  %>%
   mutate(word = str_extract(word, "[a-z']+"))   %>% count(word)
-wordcloud(freq$word,freq$n,min.freq = 1,max.words=100, random.order=FALSE, rot.per=0.35,colors=brewer.pal(8, "Dark2")) 
+#pal <- choose_palette()
+wordcloud(freq$word,freq$n,min.freq = 3,max.words=200, random.order=FALSE, rot.per=0.2,colors=brewer.pal(2, "Dark2")) 
 ```
 
 ## The most 10 common words in description 
@@ -150,7 +152,7 @@ list_org %>%
 ```
 
 # The descriptions of jobs in two different areas
-<font size ="5">As my location is at Boston, I want to look at the job descriptions of the different areas nearby. The plot shows the comparison the word frequencies of Boston, Cambridge and Framingham. </font>
+<font size ="5">As my location is at Boston, I want to look at the job descriptions of the areas nearby. The plot shows the comparison the word frequencies of Boston, Cambridge and Framingham. </font>
 ```{r,echo=FALSE, message=FALSE, warning=FALSE,fig.height=6}
 #plot of word frequencies: boston compare with Cambridge and Framingham
 #take out the lines needed
