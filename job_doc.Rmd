@@ -1,15 +1,10 @@
 ---
 title: "Job research about data scientists"
-author: "Haoran Su"
-date: "12/13/2020"
-output:
-  revealjs::revealjs_presentation:
-    theme: solarized
-    highlight: pygments
-    css: reveal.css
-    center: false
-    transition: slide
+author: "Haoran su"
+date: "12/14/2020"
+output: html_document
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -51,10 +46,9 @@ kable(list_org[1:5,2:5])
 
 
 
-# Job Distribution
+# Location Distribution
 ## List the top 10 states with the most job positions of data scientists
 <font size ="4">The plot shows that MA has the most positions of data scientists, which is not a display of the whole job listing.The reason of having Masachussette ranking 1st might for the location of crawling is at Boston, MA. So my analysis will turn to analysis the job opportunities near my current coordinate.</font>
-
 ```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.height=2.5,fig.width=4}
 #area
 cityjob<-list_org %>% 
@@ -93,19 +87,24 @@ list_org %>%
 ```
 
 
-# Word frequency in Description
-<font size ="4">Looking at the description of jobs, I want to know "what skills do the positions require".</font>
+# Description
+Looking at the description of jobs, I want to know "what skills do the positions require".
+
 ## Word Cloud
-```{r,echo=FALSE, message=FALSE, warning=FALSE,fig.width=5}
-library(wordcloud)
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
+library(wordcloud2) 
 freq<- list_org %>% unnest_tokens(word,description) %>%
   anti_join(stop_words)  %>%
   mutate(word = str_extract(word, "[a-z']+"))   %>% count(word)
-wordcloud(freq$word,freq$n,min.freq = 1,max.words=100, random.order=FALSE, rot.per=0.35,colors=brewer.pal(8, "Dark2")) 
+wordcloud2(data=freq, size=1.6, color='random-dark', shape="star")
 ```
+From the word cloud, I found that the words appear most frequently is "business, science, skills, development". It surprised me that the word "business" appear larger than "science". My interpretation is that the companies focus more on business value, talents' ability to realize talent. 
+
+And I didn't expect so many references to words " development" in the job descriptions. It might show that the employers are looking for long-term contribution of employees, who are expected to have the ability to learn. I think I need to prepare examples that show my self-learning ability.
+
+During the completion of this project, I expanded to discover many r's abilities, I learned from the examples in the book, the discussions that came up with google searching, retrieving how the functions I wanted to implement and the problems I had to solve.
 
 ## The most 10 common words in description 
-
 ```{r,echo=FALSE, message=FALSE, warning=FALSE}
 # plot the most 10 common words in description
 tidy_list %>%
@@ -119,7 +118,7 @@ tidy_list %>%
 ```
 
 # Words appear together
-<font size ="5">Some words may come together. The following plot shows common bigrams of words, showing those that occurred more than 3 times and where neither word was a stop word. </font>
+Some words may come together. The following plot shows common bigrams of words, showing those that occurred more than 3 times and where neither word was a stop word
 ```{r,echo=FALSE, message=FALSE, warning=FALSE}
 library(ggraph)  #devtools::install_github('thomasp85/ggraph')
 library(igraph)
@@ -150,8 +149,8 @@ list_org %>%
 ```
 
 # The descriptions of jobs in two different areas
-<font size ="5">As my location is at Boston, I want to look at the job descriptions of the different areas nearby. The plot shows the comparison the word frequencies of Boston, Cambridge and Framingham. </font>
-```{r,echo=FALSE, message=FALSE, warning=FALSE,fig.height=6}
+As my location is at Boston, I want to look at the job descriptions of the different areas nearby. The plot shows the comparison the word frequencies of Boston, Cambridge and Framingham.
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
 #plot of word frequencies: boston compare with Cambridge and Framingham
 #take out the lines needed
 location_compare <-tidy_list  %>%
@@ -181,4 +180,8 @@ ggplot(location_compare, aes(x = proportion, y = `Boston`,
   theme(legend.position="none") +
   labs(y = "Boston", x = NULL)
 ```
+
+# Conclusion
+
+We found some advantages and disadvantages of looking for a data science and statistical job through this project. The advantage is that we all have strong teamwork and communication skills. This is due to the fact that we have been working as a team during the graduate study at BU MSSP. Another advantage is that our expertise is well matched. Including the text mining I used this time, the modeling skills I learned in class 678, and the machine learning I will learn in class 679 next semester. Our disadvantage is that we don't have enough work experience. Most of our jobs require two years of working experience.
 
