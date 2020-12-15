@@ -79,7 +79,7 @@ list_org %>%
 companyjob<-list_org %>%
   filter(!is.na(company)) %>%
   group_by(company)%>%summarize(count = n())%>%arrange(desc(count))
-kable(companyjob[2:6,])
+kable(companyjob[1:6,])
 
 list_org %>%
   filter(!is.na(company)) %>%
